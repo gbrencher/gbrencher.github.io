@@ -1,0 +1,76 @@
+name: Daily North Cascades snow
+on:
+  schedule:
+    - cron: '23 15 * * *'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: daily-snow
+  cancel-in-progress: false
+jobs:
+  dates:
+    runs-on: ubuntu-latest
+    outputs:
+      target: ${{ steps.dates.outputs.target }}
+      reference: ${{ steps.dates.outputs.reference }}
+    steps:
+      - id: dates
+        run: |
+          python - <<'PY'
+          import os
+          from datetime import datetime, timedelta
+          from zoneinfo import ZoneInfo
+          target = datetime.now(ZoneInfo('America/Los_Angeles')).date() - timedelta(days=1)
+          year = target.year if target.month >= 10 else target.year - 1
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
+              print(f'target={target:%Y%m%d}', file=f)
+              print(f'reference={year}0910', file=f)
+          PY
+  predict:
+    needs: dates
+    uses: ./.github/workflows/snow-batch.yml
+    with:
+      target_date: ${{ needs.dates.outputs.target }}
+      snow_off_date: ${{ needs.dates.outputs.reference }}
+      aoi: '-121.85 48.35 -120.50 49.00'
+      cloud_cover: '25'
+      selection_strategy: composite
+      s1_orbit_selection: descending
+      use_ensemble: 'False'
+      predict_swe: 'False'
+  publish:
+    needs: [dates, predict]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: '*-snow-depth'
+          path: snow-input
+          merge-multiple: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install rasterio matplotlib numpy
+      - name: Render map
+        env:
+          TARGET_DATE: ${{ needs.dates.outputs.target }}
+          SNOW_OFF_DATE: ${{ needs.dates.outputs.reference }}
+        run: python scripts/render_snow.py
+      - name: Save map and deploy latest site
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add dist/assets/snow
+          git commit -m 'Update North Cascades snow map'
+          git pull --rebase origin main
+          git push origin HEAD:main
+          gh workflow run pages.yml --ref main
