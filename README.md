@@ -9,7 +9,7 @@ A buildless website prepared for GitHub Pages. The published files are in `dist/
 - `dist/assets/George-Brencher-CV.docx`: original supplied CV download.
 - `.github/workflows/pages.yml`: deploys `dist/` on pushes to `main`.
 
-The two portfolio sections and portrait remain placeholders pending original images. Academic content comes from the CV supplied October 19, 2026; research summaries are draft prose for the author's review. Publication statuses and funding qualifications are retained in the online CV. The original CV download includes the contact information in the supplied document.
+The two portfolio sections remain placeholders pending original images. The homepage uses the supplied headshot and lakeside portrait. Academic content comes from the CV supplied October 19, 2026; research summaries are draft prose for the author's review. Publication statuses and funding qualifications are retained in the online CV. The original CV download includes the contact information in the supplied document.
 
 ## Publishing
 
