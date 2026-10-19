@@ -1,15 +1,18 @@
-# George Brencher's academic website
+# George (Quinn) Brencher's academic website
 
 A buildless website prepared for GitHub Pages. The published files are in `dist/`.
 
 ## Editing
 
 - `dist/index.html`: homepage, research, publications, teaching, portfolios, and press.
+- `dist/style.css`: responsive sidebar layout and gallery styling.
+- `dist/maps/`: map viewing pages.
+- `dist/assets/maps/`: optimized WebP map exports.
 - `dist/cv.html`: accessible HTML transcription of the CV.
 - `dist/assets/George-Brencher-CV.docx`: original supplied CV download.
 - `.github/workflows/pages.yml`: deploys `dist/` on pushes to `main`.
 
-The two portfolio sections remain placeholders pending original images. The homepage uses the supplied headshot and lakeside portrait. Academic content comes from the CV supplied October 19, 2026; research summaries are draft prose for the author's review. Publication statuses and funding qualifications are retained in the online CV. The original CV download includes the contact information in the supplied document.
+The homepage leads with Seattle terrain mapping. Cartography includes five optimized map images and individual detail pages in `dist/maps/`. Photography remains forthcoming. The supplied headshot appears in About. Original map PDFs remain outside the repository; embedded map credits are retained. Academic content comes from the CV supplied October 19, 2026; research summaries are draft prose for the author's review. Publication statuses and funding qualifications are retained in the online CV. The original CV download includes the contact information in the supplied document.
 
 ## Publishing
 
