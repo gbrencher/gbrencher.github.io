@@ -1,0 +1,141 @@
+# Adapted from geo-smart/deep-snow at bcc0f928f979af2b65f3bdc984cf2a563fea96fd.
+# Explicit checkout makes the upstream workflow usable in this website repository.
+# predict snow depth for a single tile
+name: predict_tile_sd
+run-name: tile snow depth ${{ inputs.target_date }}
+
+on:
+  workflow_dispatch:
+    inputs:
+        target_date:
+            type: string
+            required: true
+            description: Target date in YYYYmmdd format.
+            default: '20240320'
+        snow_off_date:
+            type: string
+            required: true
+            description: Snow-off reference date in YYYYmmdd format, often a late-summer date from the previous year.
+            default: '20230910'
+        aoi:
+            type: string
+            required: true
+            description: Bounding box in format 'minlon minlat maxlon maxlat'.
+            default: '-108.20 37.55 -108.00 37.75'
+        cloud_cover:
+            type: string
+            required: true
+            description: Maximum allowed Sentinel-2 cloud cover percentage.
+            default: '25'
+        selection_strategy:
+            type: choice
+            required: false
+            description: Acquisition selection strategy for both Sentinel-1 and Sentinel-2.
+            default: 'composite'
+            options:
+            - 'composite'
+            - 'nearest_usable'
+        s1_orbit_selection:
+            type: choice
+            required: false
+            description: Sentinel-1 orbit selection.
+            default: 'descending'
+            options:
+            - 'descending'
+            - 'all'
+        clip_aoi:
+            type: string
+            required: false
+            description: Optional output crop bounding box in format 'minlon minlat maxlon maxlat'.
+        use_ensemble:
+            type: choice
+            required: true
+            description: Use the current ensemble defaults instead of the recommended single model.
+            default: 'False'
+            options:
+            - 'False'
+            - 'True'
+        predict_swe:
+            type: choice
+            required: false
+            description: Also derive snow density and SWE from predicted depth.
+            default: 'False'
+            options:
+            - 'False'
+            - 'True'
+        workflow_name:
+            description: Custom label for the run and artifact.
+            required: false
+            default: 'predict_tile_sd'
+            type: string
+
+  workflow_call:
+    inputs:
+        target_date:
+            type: string
+            description: Target date in YYYYmmdd format.
+        snow_off_date:
+            type: string
+            description: Snow-off reference date in YYYYmmdd format.
+        aoi:
+            type: string
+            description: Bounding box in format 'minlon minlat maxlon maxlat'.
+        cloud_cover:
+            type: string
+            description: Maximum allowed Sentinel-2 cloud cover percentage.
+        selection_strategy:
+            type: string
+            description: Acquisition selection strategy for both Sentinel-1 and Sentinel-2.
+        s1_orbit_selection:
+            type: string
+            description: Sentinel-1 orbit selection.
+        clip_aoi:
+            type: string
+            description: Optional output crop bounding box in format 'minlon minlat maxlon maxlat'.
+        use_ensemble:
+            type: string
+            description: Whether to use model ensemble (True or False).
+        predict_swe:
+            type: string
+            description: Whether to also derive snow density and SWE (True or False).
+        workflow_name:
+            description: Custom label for the run and artifact.
+            type: string
+jobs:
+    predict_tile_sd:
+        name: ${{ inputs.workflow_name }}
+        runs-on: ubuntu-latest
+        timeout-minutes: 90
+
+        steps:
+            - name: Checkout Repository
+              uses: actions/checkout@v4
+              with:
+                repository: geo-smart/deep-snow
+                ref: bcc0f928f979af2b65f3bdc984cf2a563fea96fd
+
+            - uses: prefix-dev/setup-pixi@v0.9.6
+              with:
+                cache: true
+                frozen: true
+                activate-environment: true
+
+            - name: Download Data and Predict Snow Depth
+              run: |
+                if [ -n "${{ inputs.clip_aoi }}" ]; then
+                  python -u scripts/actions/predict_tile_sd.py ${{ inputs.target_date }} ${{ inputs.snow_off_date }} "${{ inputs.aoi }}" ${{ inputs.cloud_cover }} ${{ inputs.use_ensemble }} --s1-orbit-selection ${{ inputs.s1_orbit_selection }} --selection-strategy ${{ inputs.selection_strategy }} --predict-swe ${{ inputs.predict_swe }} --clip-aoi "${{ inputs.clip_aoi }}"
+                else
+                  python -u scripts/actions/predict_tile_sd.py ${{ inputs.target_date }} ${{ inputs.snow_off_date }} "${{ inputs.aoi }}" ${{ inputs.cloud_cover }} ${{ inputs.use_ensemble }} --s1-orbit-selection ${{ inputs.s1_orbit_selection }} --selection-strategy ${{ inputs.selection_strategy }} --predict-swe ${{ inputs.predict_swe }}
+                fi
+
+            - name: Upload Snow Depth Map as Artifact
+              uses: actions/upload-artifact@v4
+              with:
+                name: ${{ inputs.workflow_name }}-snow-depth
+                path: |
+                    data/*_sd.tif
+                    data/*_swe.tif
+                    data/*_density.tif
+                    data/*_input_gaps.tif
+                    data/*_input_gaps.nc
+                if-no-files-found: error
