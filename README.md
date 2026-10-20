@@ -37,3 +37,10 @@ The renderer reprojects both completed GeoTIFFs to a shared UTM zone 10 grid, pr
 The daily job commits only the small display assets, while original GeoTIFFs remain workflow artifacts. A successful daily workflow triggers the existing Pages deployment using workflow_run because commits made with GITHUB_TOKEN do not trigger ordinary push workflows. Failed predictions do not overwrite the previous map. GitHub Pages must already be configured to use Actions, and repository policies must allow the daily job contents:write.
 
 Manual first run: Actions → Daily North Cascades snow → Run workflow. Optionally supply a known usable target and snow-off date. Inspect the output before treating the reference date and data lag as established production settings.
+
+
+### Homepage figure presentation
+
+The renderer produces a borderless data-only PNG. Title, date, scale bar, north indicator, and legend use native HTML/CSS and inherit the site's font. Legend colors come from the same Blues colormap as the raster; the depth range stays fixed at 0–5+ metres. The 20 km bar width is computed from the projected frame, so it scales correctly with the responsive image.
+
+The requested inference area is buffered to -122.18 48.295 -120.42 48.955. The display remains based on -122.10 48.375 -120.50 48.875, with a fixed 1.5% horizontal / 6% vertical inset in UTM to avoid projection-boundary wedges. Cropping does not fill or fabricate predictions. Publishing requires at least 99.5% valid pixels and a fully valid three-pixel perimeter; a failure preserves the existing map. The checked-in figure was regenerated from real October 14 artifacts, not synthetic test data. Layout was checked at desktop and 390px phone width.

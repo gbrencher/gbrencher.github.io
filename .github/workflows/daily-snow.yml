@@ -51,7 +51,7 @@ jobs:
     with:
       target_date: ${{ needs.dates.outputs.target }}
       snow_off_date: ${{ needs.dates.outputs.snow_off }}
-      aoi: '-122.10 48.375 -120.50 48.875'
+      aoi: '-122.18 48.295 -120.42 48.955'
       cloud_cover: '25'
       selection_strategy: composite
       s1_orbit_selection: descending

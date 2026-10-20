@@ -21,7 +21,10 @@ def render(source, output, target, snow_off):
     # The upstream 1.4-degree core tiling creates two tiles for this fixed extent.
     if len(files) != 2:
         raise ValueError(f'Expected two completed prediction tiles, received {len(files)}')
-    bounds = transform_bounds('EPSG:4326', CRS, *BBOX, densify_pts=41)
+    outer = transform_bounds('EPSG:4326', CRS, *BBOX, densify_pts=41)
+    dx, dy = outer[2] - outer[0], outer[3] - outer[1]
+    # Fixed inset avoids the curved geographic boundary in the UTM rectangle.
+    bounds = (outer[0] + .015*dx, outer[1] + .06*dy, outer[2] - .015*dx, outer[3] - .06*dy)
     width = 1400
     height = round(width * (bounds[3] - bounds[1]) / (bounds[2] - bounds[0]))
     transform = from_bounds(*bounds, width, height)
@@ -42,34 +45,22 @@ def render(source, output, target, snow_off):
         mosaic[valid] = tile[valid]
     if not np.isfinite(mosaic).any():
         raise ValueError('No valid map pixels')
+    coverage = float(np.isfinite(mosaic).mean())
+    edges = np.concatenate([mosaic[:3].ravel(), mosaic[-3:].ravel(), mosaic[:, :3].ravel(), mosaic[:, -3:].ravel()])
+    if coverage < .995 or not np.isfinite(edges).all():
+        raise ValueError(f'Incomplete display coverage ({coverage:.2%}); retain previous map')
     output = Path(output)
     output.mkdir(parents=True, exist_ok=True)
-    plt.rcParams.update({'font.family': 'sans-serif', 'font.sans-serif': ['Arial', 'DejaVu Sans'], 'font.size': 10})
-    fig, ax = plt.subplots(figsize=(12, 5.7), layout='constrained')
     cmap = plt.get_cmap('Blues').copy()
     cmap.set_bad('#e3e3e3')
-    im = ax.imshow(mosaic, extent=bounds[0:1] + bounds[2:3] + bounds[1:2] + bounds[3:4],
-                   origin='upper', cmap=cmap, vmin=0, vmax=5)
-    ax.set_axis_off()
-    ax.set_title('North Cascades | deep-snow predicted snow depth', loc='left', fontsize=16, pad=14)
+    # Only scientific pixels go in the image; all lettering is native website text.
+    plt.imsave(output / 'latest.png', mosaic, cmap=cmap, vmin=0, vmax=5)
     date = datetime.strptime(target, '%Y%m%d').date().isoformat()
-    ax.text(1, 1.025, date, transform=ax.transAxes, ha='right')
-    ax.annotate('N ↑', (.97, .94), xycoords='axes fraction', ha='right')
-    # UTM coordinates are metres: bar length is 20,000 map units.
-    x0 = bounds[0] + .06 * (bounds[2] - bounds[0])
-    y0 = bounds[1] + .07 * (bounds[3] - bounds[1])
-    length = 20_000
-    ax.plot([x0, x0 + length], [y0, y0], color='white', linewidth=5, solid_capstyle='butt')
-    ax.plot([x0, x0 + length], [y0, y0], color='black', linewidth=2, solid_capstyle='butt')
-    for x in (x0, x0 + length):
-        ax.plot([x, x], [y0 - 700, y0 + 700], color='black', linewidth=1)
-    ax.text(x0 + length / 2, y0 + 1600, '20 km', ha='center', va='bottom', fontsize=9,
-            bbox=dict(facecolor='white', edgecolor='none', alpha=.85, pad=2))
-    bar = fig.colorbar(im, ax=ax, orientation='horizontal', fraction=.025, pad=.035, shrink=.48, aspect=35, extend='max')
-    bar.set_label('Snow depth (m)')
-    fig.savefig(output / 'latest.png', dpi=150, facecolor='white')
-    plt.close(fig)
-    metadata = {'target_date': date, 'snow_off_date': datetime.strptime(snow_off, '%Y%m%d').date().isoformat(),
+    metadata = {'presentation_version': 2, 'width': width, 'height': height,
+                'scale_fraction': 20000 / (bounds[2] - bounds[0]),
+                'projected_bounds': list(bounds), 'crs': CRS, 'valid_fraction': coverage,
+                'legend_colors': [matplotlib.colors.to_hex(cmap(x)) for x in np.linspace(0, 1, 21)],
+                'target_date': date, 'snow_off_date': datetime.strptime(snow_off, '%Y%m%d').date().isoformat(),
                 'generated_at': datetime.now(timezone.utc).isoformat(), 'bbox': list(BBOX),
                 'image': 'assets/snow/latest.png', 'tile_count': len(files),
                 'description': 'Deep-snow model prediction using composite satellite inputs; the target date is not the acquisition date of every input.'}

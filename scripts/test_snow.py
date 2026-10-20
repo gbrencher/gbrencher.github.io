@@ -20,6 +20,10 @@ with tempfile.TemporaryDirectory() as directory:
     shutil.copyfile(tile, inputs/'second_sd.tif')
     render(inputs, root/'output', '20261018', '20260910')
     assert json.loads((root/'output/latest.json').read_text())['bbox'] == list(BOUNDS)
+    meta = json.loads((root/'output/latest.json').read_text())
+    assert meta['presentation_version'] == 2
+    assert abs(meta['scale_fraction'] * (meta['projected_bounds'][2] - meta['projected_bounds'][0]) - 20000) < .01
+    assert meta['valid_fraction'] == 1.0
     before = (root/'output/latest.png').read_bytes()
     with rasterio.open(tile, 'r+') as ds:
         ds.write(np.full((150, 200), -9999, dtype='float32'), 1)
