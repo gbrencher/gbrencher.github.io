@@ -1,0 +1,14 @@
+{
+  "target_date": "2026-10-16",
+  "snow_off_date": "2026-09-10",
+  "generated_at": "2026-10-19T23:53:45.204388+00:00",
+  "bbox": [
+    -122.1,
+    48.25,
+    -120.5,
+    49.0
+  ],
+  "image": "assets/snow/latest.png",
+  "tile_count": 2,
+  "description": "Deep-snow model prediction using composite satellite inputs; the target date is not the acquisition date of every input."
+}

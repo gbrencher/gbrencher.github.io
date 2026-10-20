@@ -1,6 +1,6 @@
-"""Render upstream snow-depth tiles on a common, north-up UTM grid."""
+"""Render real deep-snow tile outputs on a common UTM grid for the homepage."""
 import json
-import os
+import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -12,51 +12,59 @@ import rasterio
 from rasterio.transform import from_bounds
 from rasterio.warp import reproject, transform_bounds, Resampling
 
-BOUNDS = (-121.85, 48.35, -120.50, 49.00)
-REF = 'bcc0f928f979af2b65f3bdc984cf2a563fea96fd'
+BBOX = (-122.10, 48.25, -120.50, 49.00)
+CRS = 'EPSG:32610'
 
-def render(input_dir, output_dir, target, reference):
-    files = sorted(Path(input_dir).rglob('*_sd.tif'))
-    if not files:
-        raise ValueError('No snow-depth GeoTIFFs found; retaining previous map.')
-    bounds = transform_bounds('EPSG:4326', 'EPSG:32610', *BOUNDS)
-    width = 1600
+
+def render(source, output, target, snow_off):
+    files = sorted(Path(source).rglob('*_sd.tif'))
+    # The upstream 1.4-degree core tiling creates two tiles for this fixed extent.
+    if len(files) != 2:
+        raise ValueError(f'Expected two completed prediction tiles, received {len(files)}')
+    bounds = transform_bounds('EPSG:4326', CRS, *BBOX, densify_pts=41)
+    width = 1400
     height = round(width * (bounds[3] - bounds[1]) / (bounds[2] - bounds[0]))
     transform = from_bounds(*bounds, width, height)
     mosaic = np.full((height, width), np.nan, dtype='float32')
-    for file in files:
-        with rasterio.open(file) as src:
+    for path in files:
+        tile = np.full_like(mosaic, np.nan)
+        with rasterio.open(path) as src:
             if src.crs is None:
-                raise ValueError(f'Missing CRS: {file}')
-            data = src.read(1, masked=True).astype('float32').filled(np.nan)
-            tile = np.full_like(mosaic, np.nan)
-            reproject(data, tile, src_transform=src.transform, src_crs=src.crs,
-                      src_nodata=np.nan, dst_transform=transform, dst_crs='EPSG:32610',
-                      dst_nodata=np.nan, resampling=Resampling.nearest)
-            valid = np.isfinite(tile) & (tile >= 0)
-            mosaic[valid] = tile[valid]
-    coverage = float(np.isfinite(mosaic).mean())
-    if coverage < .8:
-        raise ValueError(f'Only {coverage:.1%} valid coverage; retaining previous map.')
-    output = Path(output_dir)
+                raise ValueError(f'Missing CRS: {path}')
+            reproject(rasterio.band(src, 1), tile,
+                      src_transform=src.transform, src_crs=src.crs,
+                      src_nodata=src.nodata, dst_transform=transform,
+                      dst_crs=CRS, dst_nodata=np.nan,
+                      resampling=Resampling.bilinear)
+        valid = np.isfinite(tile) & (tile >= 0)
+        if not valid.any():
+            raise ValueError(f'No valid nonnegative depths in {path}')
+        mosaic[valid] = tile[valid]
+    if not np.isfinite(mosaic).any():
+        raise ValueError('No valid map pixels')
+    output = Path(output)
     output.mkdir(parents=True, exist_ok=True)
-    fig, ax = plt.subplots(figsize=(12, 9))
-    fig.subplots_adjust(left=.01, right=.99, top=.95, bottom=.12)
-    cmap = plt.get_cmap('magma_r').copy()
-    cmap.set_bad('#dedede')
-    img = ax.imshow(mosaic, cmap=cmap, vmin=0, vmax=5, origin='upper')
+    plt.rcParams.update({'font.family': 'sans-serif', 'font.sans-serif': ['Arial', 'DejaVu Sans'], 'font.size': 10})
+    fig, ax = plt.subplots(figsize=(12, 8), layout='constrained')
+    cmap = plt.get_cmap('Blues').copy()
+    cmap.set_bad('#e3e3e3')
+    im = ax.imshow(mosaic, extent=bounds[0:1] + bounds[2:3] + bounds[1:2] + bounds[3:4],
+                   origin='upper', cmap=cmap, vmin=0, vmax=5)
     ax.set_axis_off()
-    ax.set_title('NORTH CASCADES', loc='left', fontsize=12, pad=10)
-    bar = fig.colorbar(img, ax=ax, orientation='horizontal', fraction=.035, pad=.025, extend='max')
-    bar.set_label('Predicted snow depth (m) · Grey: no data')
-    fig.savefig(output/'latest.png', dpi=150, facecolor='white')
+    ax.set_title('North Cascades | Modeled snow depth', loc='left', fontsize=16, pad=14)
+    date = datetime.strptime(target, '%Y%m%d').date().isoformat()
+    ax.text(1, 1.025, date, transform=ax.transAxes, ha='right')
+    ax.annotate('N ↑', (.97, .94), xycoords='axes fraction', ha='right')
+    bar = fig.colorbar(im, ax=ax, orientation='horizontal', fraction=.035, pad=.025, extend='max')
+    bar.set_label('Snow depth (m) · Gray indicates no data · Display resampled from model output')
+    fig.savefig(output / 'latest.png', dpi=150, facecolor='white')
     plt.close(fig)
-    metadata = dict(target_date=datetime.strptime(target, '%Y%m%d').date().isoformat(),
-                    snow_off_date=reference, generated_at=datetime.now(timezone.utc).isoformat(),
-                    bounds=BOUNDS, valid_fraction=coverage, source_commit=REF,
-                    source='https://github.com/geo-smart/deep-snow',
-                    run_url=f"https://github.com/{os.getenv('GITHUB_REPOSITORY', '')}/actions/runs/{os.getenv('GITHUB_RUN_ID', '')}")
-    (output/'latest.json').write_text(json.dumps(metadata, indent=2)+'\n')
+    metadata = {'target_date': date, 'snow_off_date': datetime.strptime(snow_off, '%Y%m%d').date().isoformat(),
+                'generated_at': datetime.now(timezone.utc).isoformat(), 'bbox': list(BBOX),
+                'image': 'assets/snow/latest.png', 'tile_count': len(files),
+                'description': 'Deep-snow model prediction using composite satellite inputs; the target date is not the acquisition date of every input.'}
+    (output / 'latest.json').write_text(json.dumps(metadata, indent=2) + '\n')
+
 
 if __name__ == '__main__':
-    render('snow-input', 'dist/assets/snow', os.environ['TARGET_DATE'], os.environ['SNOW_OFF_DATE'])
+    render(*sys.argv[1:])

@@ -1,8 +1,18 @@
 name: Daily North Cascades snow
 on:
   schedule:
-    - cron: '23 15 * * *'
+    - cron: '37 15 * * *'
   workflow_dispatch:
+    inputs:
+      target_date:
+        description: 'Prediction date YYYYmmdd (blank uses three days ago)'
+        type: string
+      snow_off_date:
+        description: 'Snow-off reference YYYYmmdd (blank uses most recent September 10)'
+        type: string
+  push:
+    branches: [main]
+    paths: ['.github/workflows/daily-snow.yml', '.github/workflows/snow-*.yml', 'scripts/*snow*.py']
 permissions:
   contents: read
 concurrency:
@@ -13,27 +23,35 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       target: ${{ steps.dates.outputs.target }}
-      reference: ${{ steps.dates.outputs.reference }}
+      snow_off: ${{ steps.dates.outputs.snow_off }}
     steps:
       - id: dates
+        env:
+          TARGET: ${{ inputs.target_date }}
+          SNOW_OFF: ${{ inputs.snow_off_date }}
         run: |
           python - <<'PY'
           import os
           from datetime import datetime, timedelta
           from zoneinfo import ZoneInfo
-          target = datetime.now(ZoneInfo('America/Los_Angeles')).date() - timedelta(days=1)
-          year = target.year if target.month >= 10 else target.year - 1
-          with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
-              print(f'target={target:%Y%m%d}', file=f)
-              print(f'reference={year}0910', file=f)
+          target = datetime.strptime(os.environ['TARGET'], '%Y%m%d').date() if os.environ['TARGET'] else datetime.now(ZoneInfo('America/Los_Angeles')).date() - timedelta(days=3)
+          reference = target.replace(month=9, day=10)
+          if reference >= target:
+              reference = reference.replace(year=reference.year - 1)
+          if os.environ['SNOW_OFF']:
+              reference = datetime.strptime(os.environ['SNOW_OFF'], '%Y%m%d').date()
+          if reference >= target:
+              raise ValueError('Snow-off reference must precede target date')
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as out:
+              out.write(f'target={target:%Y%m%d}\nsnow_off={reference:%Y%m%d}\n')
           PY
   predict:
     needs: dates
     uses: ./.github/workflows/snow-batch.yml
     with:
       target_date: ${{ needs.dates.outputs.target }}
-      snow_off_date: ${{ needs.dates.outputs.reference }}
-      aoi: '-121.85 48.35 -120.50 49.00'
+      snow_off_date: ${{ needs.dates.outputs.snow_off }}
+      aoi: '-122.10 48.25 -120.50 49.00'
       cloud_cover: '25'
       selection_strategy: composite
       s1_orbit_selection: descending
@@ -44,7 +62,6 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-      actions: write
     steps:
       - uses: actions/checkout@v4
         with:
@@ -52,25 +69,23 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           pattern: '*-snow-depth'
-          path: snow-input
+          path: snow-tiles
           merge-multiple: true
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - run: pip install rasterio matplotlib numpy
+      - run: pip install 'rasterio>=1.4,<2' 'matplotlib>=3.9,<4' 'numpy>=2,<3'
       - name: Render map
         env:
-          TARGET_DATE: ${{ needs.dates.outputs.target }}
-          SNOW_OFF_DATE: ${{ needs.dates.outputs.reference }}
-        run: python scripts/render_snow.py
-      - name: Save map and deploy latest site
-        env:
-          GH_TOKEN: ${{ github.token }}
+          TARGET: ${{ needs.dates.outputs.target }}
+          SNOW_OFF: ${{ needs.dates.outputs.snow_off }}
+        run: python scripts/render_snow.py snow-tiles dist/assets/snow "$TARGET" "$SNOW_OFF"
+      - name: Save latest successful map
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add dist/assets/snow
+          git diff --cached --quiet && exit 0
           git commit -m 'Update North Cascades snow map'
           git pull --rebase origin main
           git push origin HEAD:main
-          gh workflow run pages.yml --ref main
