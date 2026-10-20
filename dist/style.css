@@ -10,3 +10,5 @@
 
 .teaching-gallery{grid-column:1/-1;display:grid;grid-template-columns:1.12fr 1fr;gap:16px;align-items:center}.teaching-gallery a{display:block;min-width:0}.teaching-gallery a:first-child{grid-row:span 2}.teaching-gallery img{display:block;width:100%;height:auto}@media(max-width:700px){.teaching-gallery{gap:10px}}@media(max-width:480px){.teaching-gallery{grid-template-columns:1fr;gap:16px}.teaching-gallery a:first-child{grid-row:auto}}
 #teaching{row-gap:32px}
+
+#about{row-gap:28px}.welcome-heading{font-size:19px;line-height:1.3;margin:0 0 20px}.about-gallery{grid-column:1/-1;display:grid;grid-template-columns:.75fr 1.333fr .75fr 1.333fr;gap:14px;align-items:center}.about-gallery a{display:block;min-width:0}.about-gallery img{display:block;width:100%;height:auto}@media(max-width:700px){.about-gallery{grid-template-columns:.75fr 1.333fr;gap:14px}}
