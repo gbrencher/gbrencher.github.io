@@ -12,7 +12,7 @@ A buildless website prepared for GitHub Pages. The published files are in `dist/
 - `dist/assets/George-Brencher-CV.docx`: original supplied CV download.
 - `.github/workflows/pages.yml`: deploys `dist/` on pushes to `main`.
 
-The homepage leads with Seattle terrain mapping. Cartography includes five optimized map images and individual detail pages in `dist/maps/`. Photography remains forthcoming. The supplied headshot appears in About. Original map PDFs remain outside the repository; embedded map credits are retained. Academic content comes from the CV supplied October 19, 2026; research summaries are draft prose for the author's review. Publication statuses and funding qualifications are retained in the online CV. The original CV download includes the contact information in the supplied document.
+The homepage leads with Seattle terrain mapping. Cartography includes five optimized map images and individual detail pages in `dist/maps/`. The Mountain photographs gallery contains the 13 images selected in mountain_photos_selected, with full compositions and links to the supplied JPEGs. The supplied headshot appears in About. Original map PDFs remain outside the repository; embedded map credits are retained. Academic content comes from the CV supplied October 19, 2026; research summaries are draft prose for the author's review. Publication statuses and funding qualifications are retained in the online CV. The original CV download includes the contact information in the supplied document.
 
 ## Publishing
 
