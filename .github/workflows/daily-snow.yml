@@ -5,7 +5,7 @@ on:
   workflow_dispatch:
     inputs:
       target_date:
-        description: 'Prediction date YYYYmmdd (blank uses three days ago)'
+        description: 'Prediction date YYYYmmdd (blank uses six days ago)'
         type: string
       snow_off_date:
         description: 'Snow-off reference YYYYmmdd (blank uses most recent September 10)'
@@ -34,7 +34,7 @@ jobs:
           import os
           from datetime import datetime, timedelta
           from zoneinfo import ZoneInfo
-          target = datetime.strptime(os.environ['TARGET'], '%Y%m%d').date() if os.environ['TARGET'] else datetime.now(ZoneInfo('America/Los_Angeles')).date() - timedelta(days=3)
+          target = datetime.strptime(os.environ['TARGET'], '%Y%m%d').date() if os.environ['TARGET'] else datetime.now(ZoneInfo('America/Los_Angeles')).date() - timedelta(days=6)
           reference = target.replace(month=9, day=10)
           if reference >= target:
               reference = reference.replace(year=reference.year - 1)
@@ -51,7 +51,7 @@ jobs:
     with:
       target_date: ${{ needs.dates.outputs.target }}
       snow_off_date: ${{ needs.dates.outputs.snow_off }}
-      aoi: '-122.10 48.25 -120.50 49.00'
+      aoi: '-122.10 48.375 -120.50 48.875'
       cloud_cover: '25'
       selection_strategy: composite
       s1_orbit_selection: descending

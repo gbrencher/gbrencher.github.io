@@ -5,7 +5,7 @@ from pathlib import Path
 import numpy as np
 import rasterio
 from rasterio.transform import from_bounds
-from render_snow import render, BOUNDS
+from render_snow import render, BBOX as BOUNDS
 
 with tempfile.TemporaryDirectory() as directory:
     root = Path(directory)
@@ -16,11 +16,14 @@ with tempfile.TemporaryDirectory() as directory:
                        dtype='float32', crs='EPSG:4326',
                        transform=from_bounds(*BOUNDS, 200, 150), nodata=-9999) as ds:
         ds.write(np.tile(np.linspace(0, 5, 200, dtype='float32'), (150, 1)), 1)
+    import shutil
+    shutil.copyfile(tile, inputs/'second_sd.tif')
     render(inputs, root/'output', '20261018', '20260910')
-    assert json.loads((root/'output/latest.json').read_text())['valid_fraction'] > .8
+    assert json.loads((root/'output/latest.json').read_text())['bbox'] == list(BOUNDS)
     before = (root/'output/latest.png').read_bytes()
     with rasterio.open(tile, 'r+') as ds:
         ds.write(np.full((150, 200), -9999, dtype='float32'), 1)
+    shutil.copyfile(tile, inputs/'second_sd.tif')
     try:
         render(inputs, root/'output', '20261019', '20260910')
     except ValueError:

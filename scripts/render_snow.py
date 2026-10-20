@@ -12,7 +12,7 @@ import rasterio
 from rasterio.transform import from_bounds
 from rasterio.warp import reproject, transform_bounds, Resampling
 
-BBOX = (-122.10, 48.25, -120.50, 49.00)
+BBOX = (-122.10, 48.375, -120.50, 48.875)
 CRS = 'EPSG:32610'
 
 
@@ -45,18 +45,28 @@ def render(source, output, target, snow_off):
     output = Path(output)
     output.mkdir(parents=True, exist_ok=True)
     plt.rcParams.update({'font.family': 'sans-serif', 'font.sans-serif': ['Arial', 'DejaVu Sans'], 'font.size': 10})
-    fig, ax = plt.subplots(figsize=(12, 8), layout='constrained')
+    fig, ax = plt.subplots(figsize=(12, 5.7), layout='constrained')
     cmap = plt.get_cmap('Blues').copy()
     cmap.set_bad('#e3e3e3')
     im = ax.imshow(mosaic, extent=bounds[0:1] + bounds[2:3] + bounds[1:2] + bounds[3:4],
                    origin='upper', cmap=cmap, vmin=0, vmax=5)
     ax.set_axis_off()
-    ax.set_title('North Cascades | Modeled snow depth', loc='left', fontsize=16, pad=14)
+    ax.set_title('North Cascades | deep-snow predicted snow depth', loc='left', fontsize=16, pad=14)
     date = datetime.strptime(target, '%Y%m%d').date().isoformat()
     ax.text(1, 1.025, date, transform=ax.transAxes, ha='right')
     ax.annotate('N ↑', (.97, .94), xycoords='axes fraction', ha='right')
-    bar = fig.colorbar(im, ax=ax, orientation='horizontal', fraction=.035, pad=.025, extend='max')
-    bar.set_label('Snow depth (m) · Gray indicates no data · Display resampled from model output')
+    # UTM coordinates are metres: bar length is 20,000 map units.
+    x0 = bounds[0] + .06 * (bounds[2] - bounds[0])
+    y0 = bounds[1] + .07 * (bounds[3] - bounds[1])
+    length = 20_000
+    ax.plot([x0, x0 + length], [y0, y0], color='white', linewidth=5, solid_capstyle='butt')
+    ax.plot([x0, x0 + length], [y0, y0], color='black', linewidth=2, solid_capstyle='butt')
+    for x in (x0, x0 + length):
+        ax.plot([x, x], [y0 - 700, y0 + 700], color='black', linewidth=1)
+    ax.text(x0 + length / 2, y0 + 1600, '20 km', ha='center', va='bottom', fontsize=9,
+            bbox=dict(facecolor='white', edgecolor='none', alpha=.85, pad=2))
+    bar = fig.colorbar(im, ax=ax, orientation='horizontal', fraction=.025, pad=.035, shrink=.48, aspect=35, extend='max')
+    bar.set_label('Snow depth (m)')
     fig.savefig(output / 'latest.png', dpi=150, facecolor='white')
     plt.close(fig)
     metadata = {'target_date': date, 'snow_off_date': datetime.strptime(snow_off, '%Y%m%d').date().isoformat(),

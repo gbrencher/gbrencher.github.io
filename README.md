@@ -26,7 +26,7 @@ Serve `dist/` with any static HTTP server, or open `dist/index.html` directly in
 
 ## Daily North Cascades snow map
 
-`daily-snow.yml` runs at 15:37 UTC daily (08:37 PDT / 07:37 PST), on manual dispatch, and when its implementation changes on main. It targets three days earlier in Pacific time. This is a configurable starting lag, not a confirmed upstream availability guarantee. The default snow-off date is the most recent September 10 strictly before the target; validate this reference for the North Cascades before interpreting results.
+`daily-snow.yml` runs at 15:37 UTC daily (08:37 PDT / 07:37 PST), on manual dispatch, and when its implementation changes on main. It targets six days earlier in Pacific time. This is a configurable starting lag, not a confirmed upstream availability guarantee. The default snow-off date is the most recent September 10 strictly before the target; validate this reference for the North Cascades before interpreting results.
 
 Extent: -122.10, 48.25, -120.50, 49.00 (west, south, east, north). The fixed extent creates two upstream tiles. If the extent or tile size changes, also update BBOX and expected tile count in scripts/render_snow.py.
 
