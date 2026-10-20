@@ -3,7 +3,7 @@ on:
   push:
     branches: [main]
   workflow_run:
-    workflows: [Daily North Cascades snow]
+    workflows: [Daily North Cascades snow, April 1 North Cascades snow]
     types: [completed]
     branches: [main]
   workflow_dispatch:

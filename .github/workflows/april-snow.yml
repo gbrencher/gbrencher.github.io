@@ -1,0 +1,55 @@
+name: April 1 North Cascades snow
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/april-snow.yml']
+permissions:
+  contents: read
+concurrency:
+  group: daily-snow
+  cancel-in-progress: false
+jobs:
+  predict:
+    uses: ./.github/workflows/snow-batch.yml
+    with:
+      target_date: '20260401'
+      snow_off_date: '20250910'
+      aoi: '-122.18 48.295 -120.42 48.955'
+      cloud_cover: '25'
+      selection_strategy: composite
+      s1_orbit_selection: descending
+      use_ensemble: 'True'
+      predict_swe: 'False'
+  publish:
+    needs: predict
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: '*-snow-depth'
+          path: snow-tiles
+          merge-multiple: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install 'rasterio>=1.4,<2' 'matplotlib>=3.9,<4' 'numpy>=2,<3'
+      - name: Render map
+        env:
+          TARGET: '20260401'
+          SNOW_OFF: '20250910'
+        run: python scripts/render_snow.py snow-tiles dist/assets/snow/april-2026 "$TARGET" "$SNOW_OFF"
+      - name: Save latest successful map
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add dist/assets/snow/april-2026
+          git diff --cached --quiet && exit 0
+          git commit -m 'Add April 1 2026 North Cascades snow map'
+          git pull --rebase origin main
+          git push origin HEAD:main
