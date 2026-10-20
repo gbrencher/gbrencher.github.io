@@ -16,11 +16,14 @@ BBOX = (-122.10, 48.375, -120.50, 48.875)
 CRS = 'EPSG:32610'
 
 
-def render(source, output, target, snow_off):
-    files = sorted(Path(source).rglob('*_sd.tif'))
-    # The upstream 1.4-degree core tiling creates two tiles for this fixed extent.
-    if len(files) != 2:
-        raise ValueError(f'Expected two completed prediction tiles, received {len(files)}')
+def composite_snow(depth, shade, cmap):
+    snow_rgb = cmap(np.clip(depth / 5, 0, 1))[..., :3]
+    result = .7 * snow_rgb + .3 * shade[..., None]
+    result[~np.isfinite(depth)] = matplotlib.colors.to_rgb('#e3e3e3')
+    return np.clip(result, 0, 1)
+
+
+def display_grid():
     outer = transform_bounds('EPSG:4326', CRS, *BBOX, densify_pts=41)
     dx, dy = outer[2] - outer[0], outer[3] - outer[1]
     # Fixed inset avoids the curved geographic boundary in the UTM rectangle.
@@ -28,6 +31,15 @@ def render(source, output, target, snow_off):
     width = 1400
     height = round(width * (bounds[3] - bounds[1]) / (bounds[2] - bounds[0]))
     transform = from_bounds(*bounds, width, height)
+    return bounds, width, height, transform
+
+
+def render(source, output, target, snow_off):
+    files = sorted(Path(source).rglob('*_sd.tif'))
+    # The upstream 1.4-degree core tiling creates two tiles for this fixed extent.
+    if len(files) != 2:
+        raise ValueError(f'Expected two completed prediction tiles, received {len(files)}')
+    bounds, width, height, transform = display_grid()
     mosaic = np.full((height, width), np.nan, dtype='float32')
     for path in files:
         tile = np.full_like(mosaic, np.nan)
@@ -54,12 +66,19 @@ def render(source, output, target, snow_off):
     cmap = plt.get_cmap('Blues').copy()
     cmap.set_bad('#e3e3e3')
     # Only scientific pixels go in the image; all lettering is native website text.
-    plt.imsave(output / 'latest.png', mosaic, cmap=cmap, vmin=0, vmax=5)
+    terrain_path = Path(__file__).parent / 'data' / 'north-cascades-hillshade.tif'
+    with rasterio.open(terrain_path) as terrain:
+        if terrain.shape != mosaic.shape or terrain.crs.to_string() != CRS or not terrain.transform.almost_equals(transform):
+            raise ValueError('Hillshade grid differs from map; rebuild with prepare_hillshade.py')
+        shade = terrain.read(1).astype('float32') / 255
+    rgb = composite_snow(mosaic, shade, cmap)
+    plt.imsave(output / 'latest.png', rgb)
     date = datetime.strptime(target, '%Y%m%d').date().isoformat()
     metadata = {'presentation_version': 2, 'width': width, 'height': height,
-                'scale_fraction': 20000 / (bounds[2] - bounds[0]),
+                'scale_metres': 10000, 'snow_opacity': 0.7, 'terrain': 'Copernicus DEM GLO-30',
+                'scale_fraction': 10000 / (bounds[2] - bounds[0]),
                 'projected_bounds': list(bounds), 'crs': CRS, 'valid_fraction': coverage,
-                'legend_colors': [matplotlib.colors.to_hex(cmap(x)) for x in np.linspace(0, 1, 21)],
+                'legend_colors': [matplotlib.colors.to_hex(.7*np.array(cmap(x)[:3]) + .3*.75) for x in np.linspace(0, 1, 21)],
                 'target_date': date, 'snow_off_date': datetime.strptime(snow_off, '%Y%m%d').date().isoformat(),
                 'generated_at': datetime.now(timezone.utc).isoformat(), 'bbox': list(BBOX),
                 'image': 'assets/snow/latest.png', 'tile_count': len(files),

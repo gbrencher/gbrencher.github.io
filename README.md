@@ -28,7 +28,7 @@ Serve `dist/` with any static HTTP server, or open `dist/index.html` directly in
 
 `daily-snow.yml` runs at 15:37 UTC daily (08:37 PDT / 07:37 PST), on manual dispatch, and when its implementation changes on main. It targets six days earlier in Pacific time. This is a configurable starting lag, not a confirmed upstream availability guarantee. The default snow-off date is the most recent September 10 strictly before the target; validate this reference for the North Cascades before interpreting results.
 
-Extent: -122.10, 48.25, -120.50, 49.00 (west, south, east, north). The fixed extent creates two upstream tiles. If the extent or tile size changes, also update BBOX and expected tile count in scripts/render_snow.py.
+Inference extent: -122.18, 48.295, -120.42, 48.955 (west, south, east, north). The fixed extent creates two upstream tiles. If the extent or tile size changes, also update BBOX and expected tile count in scripts/render_snow.py.
 
 `snow-batch.yml` and `snow-tile.yml` are adapted copies of the supplied deep-snow workflows, pinned to bcc0f928f979af2b65f3bdc984cf2a563fea96fd. They retain the upstream prediction scripts and environment; explicit upstream checkouts allow execution from this repository. The upstream BSD license is retained in LICENSE-deep-snow. Two parallel jobs are allowed, with a 90-minute prediction timeout per tile.
 
@@ -41,6 +41,10 @@ Manual first run: Actions → Daily North Cascades snow → Run workflow. Option
 
 ### Homepage figure presentation
 
-The renderer produces a borderless data-only PNG. Title, date, scale bar, north indicator, and legend use native HTML/CSS and inherit the site's font. Legend colors come from the same Blues colormap as the raster; the depth range stays fixed at 0–5+ metres. The 20 km bar width is computed from the projected frame, so it scales correctly with the responsive image.
+The renderer produces a borderless data-only PNG. Title, date, scale bar, north indicator, and legend use native HTML/CSS and inherit the site's font. Legend colors come from the same Blues colormap as the raster; the depth range stays fixed at 0–5+ metres. The 10 km bar width is computed from the projected frame, so it scales correctly with the responsive image.
 
 The requested inference area is buffered to -122.18 48.295 -120.42 48.955. The display remains based on -122.10 48.375 -120.50 48.875, with a fixed 1.5% horizontal / 6% vertical inset in UTM to avoid projection-boundary wedges. Cropping does not fill or fabricate predictions. Publishing requires at least 99.5% valid pixels and a fully valid three-pixel perimeter; a failure preserves the existing map. The checked-in figure was regenerated from real October 14 artifacts, not synthetic test data. Layout was checked at desktop and 390px phone width.
+
+The snow layer is composited at alpha 0.7 over a Copernicus DEM GLO-30 hillshade (315° azimuth, 45° sun elevation, no vertical exaggeration). The legend uses the same blend over a reference gray of 0.75; terrain shading varies locally. The static terrain raster is tracked in `scripts/data/north-cascades-hillshade.tif`, avoiding daily terrain downloads. To rebuild after changing the frame, download the N48 W123, W122, and W121 tiles from the [public COP30 archive](https://copernicus-dem-30m.s3.amazonaws.com/readme.html), then run `python scripts/prepare_hillshade.py /path/to/tiles`.
+
+Terrain attribution: produced using Copernicus WorldDEM-30 © DLR e.V. 2010–2014 and © Airbus Defence and Space GmbH 2014–2018 provided under COPERNICUS by the European Union and ESA; all rights reserved.

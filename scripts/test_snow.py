@@ -5,7 +5,9 @@ from pathlib import Path
 import numpy as np
 import rasterio
 from rasterio.transform import from_bounds
-from render_snow import render, BBOX as BOUNDS
+from render_snow import render, composite_snow, BBOX as BOUNDS
+import matplotlib.pyplot as plt
+assert np.allclose(composite_snow(np.array([[2.5]]), np.array([[.5]]), plt.get_cmap("Blues"))[0,0], .7*np.array(plt.get_cmap("Blues")(.5)[:3])+.15)
 
 with tempfile.TemporaryDirectory() as directory:
     root = Path(directory)
@@ -22,7 +24,7 @@ with tempfile.TemporaryDirectory() as directory:
     assert json.loads((root/'output/latest.json').read_text())['bbox'] == list(BOUNDS)
     meta = json.loads((root/'output/latest.json').read_text())
     assert meta['presentation_version'] == 2
-    assert abs(meta['scale_fraction'] * (meta['projected_bounds'][2] - meta['projected_bounds'][0]) - 20000) < .01
+    assert abs(meta['scale_fraction'] * (meta['projected_bounds'][2] - meta['projected_bounds'][0]) - 10000) < .01
     assert meta['valid_fraction'] == 1.0
     before = (root/'output/latest.png').read_bytes()
     with rasterio.open(tile, 'r+') as ds:

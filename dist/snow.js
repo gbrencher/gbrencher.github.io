@@ -22,9 +22,9 @@
     image.width = d.width; image.height = d.height;
     const heading = el('div','snow-heading');
     const date = el('time','',d.target_date); date.dateTime = d.target_date;
-    heading.append(el('span','','North Cascades'),date);
+    heading.append(el('span','','North Cascades snow depth'),date);
     const frame = el('div','snow-frame');
-    const scale = el('span','snow-scale','20 km'); scale.style.width = `${d.scale_fraction*100}%`;
+    const scale = el('span','snow-scale',`${(d.scale_metres || 20000)/1000} km`); scale.style.width = `${d.scale_fraction*100}%`;
     frame.append(link,scale,el('span','snow-north','N ↑'));
     const legend = el('div','snow-legend');
     legend.setAttribute('aria-label','Snow depth in metres: 0 to 5 or more; grey means no data');
