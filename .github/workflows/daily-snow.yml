@@ -55,7 +55,7 @@ jobs:
       cloud_cover: '25'
       selection_strategy: composite
       s1_orbit_selection: descending
-      use_ensemble: 'False'
+      use_ensemble: 'True'
       predict_swe: 'False'
   publish:
     needs: [dates, predict]

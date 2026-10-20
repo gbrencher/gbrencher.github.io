@@ -46,8 +46,8 @@ on:
         use_ensemble:
             type: choice
             required: true
-            description: Use the current ensemble defaults instead of the recommended single model.
-            default: 'False'
+            description: Use the model ensemble.
+            default: 'True'
             options:
             - 'False'
             - 'True'

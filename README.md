@@ -48,3 +48,5 @@ The requested inference area is buffered to -122.18 48.295 -120.42 48.955. The d
 The snow layer is composited at alpha 0.7 over a Copernicus DEM GLO-30 hillshade (315° azimuth, 45° sun elevation, no vertical exaggeration). The legend uses the same blend over a reference gray of 0.75; terrain shading varies locally. The static terrain raster is tracked in `scripts/data/north-cascades-hillshade.tif`, avoiding daily terrain downloads. To rebuild after changing the frame, download the N48 W123, W122, and W121 tiles from the [public COP30 archive](https://copernicus-dem-30m.s3.amazonaws.com/readme.html), then run `python scripts/prepare_hillshade.py /path/to/tiles`.
 
 Terrain attribution: produced using Copernicus WorldDEM-30 © DLR e.V. 2010–2014 and © Airbus Defence and Space GmbH 2014–2018 provided under COPERNICUS by the European Union and ESA; all rights reserved.
+
+Daily snow predictions use the model ensemble (`use_ensemble: True`), also the default for manual batch and tile runs. Teaching photographs are stored in `dist/assets/teaching/` and displayed uncropped in a responsive gallery.

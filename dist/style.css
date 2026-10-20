@@ -7,3 +7,6 @@
 .snow-north{position:absolute;right:3%;top:6%;font-size:10px;line-height:1.4;text-shadow:0 0 3px white;pointer-events:none}
 .snow-figure figcaption{align-items:flex-start;margin-top:14px;font-size:11px;gap:20px}.snow-legend{display:flex;align-items:flex-start;gap:24px;flex-wrap:wrap}.snow-ramp{width:180px;max-width:100%}.snow-gradient{height:6px;border:1px solid #ddd}.snow-ticks{display:flex;justify-content:space-between;font-size:10px;color:#555;line-height:1.5;margin-top:3px;font-variant-numeric:tabular-nums}.snow-figure figcaption>a{white-space:nowrap;color:#666}
 @media(max-width:700px){.snow-figure figcaption{flex-direction:row;gap:12px}.snow-legend{gap:8px;flex-direction:column}.snow-ramp{width:160px}.snow-heading{font-size:11px}.snow-scale,.snow-north{font-size:9px}}
+
+.teaching-gallery{grid-column:1/-1;display:grid;grid-template-columns:1.12fr 1fr;gap:16px;align-items:center}.teaching-gallery a{display:block;min-width:0}.teaching-gallery a:first-child{grid-row:span 2}.teaching-gallery img{display:block;width:100%;height:auto}@media(max-width:700px){.teaching-gallery{gap:10px}}@media(max-width:480px){.teaching-gallery{grid-template-columns:1fr;gap:16px}.teaching-gallery a:first-child{grid-row:auto}}
+#teaching{row-gap:32px}
