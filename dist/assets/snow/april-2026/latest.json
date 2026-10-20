@@ -1,0 +1,52 @@
+{
+  "presentation_version": 2,
+  "width": 1400,
+  "height": 620,
+  "scale_metres": 10000,
+  "snow_opacity": 0.7,
+  "terrain": "Copernicus DEM GLO-30",
+  "scale_fraction": 0.08653521033555064,
+  "projected_bounds": [
+    567779.4924317679,
+    5361864.642997802,
+    683339.3895097758,
+    5413081.545255654
+  ],
+  "crs": "EPSG:32610",
+  "valid_fraction": 1.0,
+  "legend_colors": [
+    "#e6e9ec",
+    "#e0e5ea",
+    "#d9e0e7",
+    "#d2dce5",
+    "#cbd7e3",
+    "#c4d3e1",
+    "#b9cedd",
+    "#aec9d9",
+    "#a1c3d5",
+    "#92bbd2",
+    "#84b3cf",
+    "#79abcb",
+    "#6da3c6",
+    "#639bc2",
+    "#5991bd",
+    "#5088b8",
+    "#4980b1",
+    "#4276aa",
+    "#3f6d9f",
+    "#3f6491",
+    "#3f5b84"
+  ],
+  "target_date": "2026-04-01",
+  "snow_off_date": "2025-09-10",
+  "generated_at": "2026-10-20T19:22:11.347714+00:00",
+  "bbox": [
+    -122.1,
+    48.375,
+    -120.5,
+    48.875
+  ],
+  "image": "assets/snow/latest.png",
+  "tile_count": 2,
+  "description": "Deep-snow model prediction using composite satellite inputs; the target date is not the acquisition date of every input."
+}
