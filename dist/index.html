@@ -43,18 +43,17 @@
         <div>
           <h3 class="welcome-heading">Welcome!</h3>
           <p>
-            I’m a Gordon and Betty Moore Foundation Postdoctoral Fellow and a UW Data Science
-            Postdoctoral Fellow at the University of Washington, working with David Shean.
+            I’m a Gordon and Betty Moore Foundation Postdoctoral Fellow and a 
+            UW Data Science Postdoctoral Fellow at the University of Washington, where I work with David Shean.
           </p>
           <p>
-            I earned my Ph.D. in Civil and Environmental Engineering at UW in 2025, where my
-            dissertation focused on improving synthetic aperture radar measurements of surface
-            movement and snow depth in mountain environments. I received my B.A. in Geology and
+            I earned my Ph.D. in Civil and Environmental Engineering at UW in 2025. My 
+            dissertation focused on improving measurements of surface 
+            movement and snow depth in mountain environments using synthetic aperture radar. I received my B.A. in Geology and 
             Biology from Middlebury College in 2020.
           </p>
           <p>
-            Alongside my academic work, this site brings together my interests in cartography and
-            taking pictures of mountains.
+            This site brings together my academic work and my interests in cartography and taking pictures of mountains.
           </p>
           <div class="links">
             <a href="mailto:gbrench@uw.edu">Email ↗</a>
@@ -77,55 +76,91 @@
         </div>
         <div>
           <p>
-            I study how snow, ice, and terrain are changing in mountain environments, and what those
-            changes mean for water resources and natural hazards. My work combines satellite
-            observations, machine learning, and geophysical methods to measure processes that are
-            difficult to observe.
+            My research uses remote sensing and data science to understand
+            mountain hazards and water resources. I investigate how slopes move before
+            failure, how buried ice shapes the evolution of moraines damming glacial lakes, and how
+            snow is distributed across the western United States. By developing methods
+            that take advantage of the vast quantity of satellite data, I work towards the
+            detailed understanding of mountain processes needed to inform hazard assessment
+            and water resource management. 
           </p>
-
+      
           <article class="entry">
-            <span class="tag">01 / Surface movement</span>
-            <h3>Radar observations of changing terrain</h3>
+            <span class="tag">01 / Landslides</span>
+            <h3>Identifying and monitoring unstable mountain slopes</h3>
             <p>
-              I use interferometric synthetic aperture radar (InSAR) and feature tracking to measure
-              the movement of landslides, moraine dams, glaciers, and rock glaciers. I develop
-              methods to quantify subtle surface motion and make satellite radar observations more
-              useful in steep mountain terrain.
+              I use satellite and airborne radar interferometry (InSAR) and feature tracking to
+              identify unstable mountain slopes and precisely quantify their movement over
+              time. My work spans the western United States, Alaska, Patagonia, and High Mountain
+              Asia, including investigations of movement preceding major slope
+              failures. I’m working toward automated monitoring systems that combine
+              large-scale satellite observations and AI to identify landslides that
+              warrant close attention, track their behavior, and provide timely
+              information for hazard assessment.
             </p>
           </article>
-
+      
           <article class="entry">
-            <span class="tag">02 / Snow</span>
-            <h3 id="snow-map">Snow depth from remote sensing</h3>
+            <span class="tag">02 / Glacial lake outburst floods</span>
+            <h3>Assessing unstable dams and reconstructing past floods</h3>
             <p>
-              I combine satellite observations and airborne lidar measurements to train machine
-              learning models that predict snow depth across the western United States. I’m
-              interested in resolving both local snow patterns and regional changes in this seasonal
-              water resource.
-            </p>
-            <p>The map at the top of this page uses <a href="https://github.com/geo-smart/deep-snow">deep-snow</a> to predict snow depth across the North Cascades. It is generated daily from remote sensing data.</p>
-            <details>
-              <summary>Terrain attribution</summary>
-              <p>
-                Produced using Copernicus WorldDEM-30 © DLR e.V. 2010–2014 and © Airbus Defence and
-                Space GmbH 2014–2018 provided under COPERNICUS by the European Union and ESA.
-              </p>
-            </details>
-          </article>
-
-          <article class="entry">
-            <span class="tag">03 / Mountain hazards</span>
-            <h3>From measurements to hazard assessment</h3>
-            <p>
-              I study the degradation of ice-cored moraine dams in Nepal to provide information for
-              glacial lake outburst flood hazard assessments. Across my research, I emphasize
-              uncertainty: understanding where measurements are reliable and which questions they
-              can reasonably answer.
+              I investigate glacial lake outburst flood hazards across High Mountain
+              Asia, including high-priority sites in Nepal, India, and China. I use
+              satellite InSAR and feature tracking to quantify moraine dam movement
+              and subsidence, and developed an approach using seasonal changes in
+              InSAR coherence to map buried ice within these dams. I also use coherence
+              change to map the impacts of past floods and debris flows, and to constrain 
+              when historical floods occurred. Together, this work informs glacial lake 
+              outburst flood hazard assessment and improves our understanding of processes 
+              controlling moraine dam evolution.
             </p>
           </article>
+      
+          <article class="entry">
+            <span class="tag">03 / Snow</span>
+            <h3 id="snow-map">Mapping mountain snow with machine learning</h3>
+            <p>
+              I develop machine learning models to map snow depth across the western
+              United States, capturing local snow patterns across entire mountain
+              ranges. Trained on high-resolution airborne lidar measurements, these
+              models combine remote sensing observations with model-based inputs to
+              estimate snow depth at 50 m resolution. I’ve released open-source
+              software that makes these estimates available for any location in the
+              western U.S. and any date over roughly the past decade. This work
+              supports efforts to quantify the water stored in mountain snow and
+              track its distribution through the season.
+            </p>
+            <p>
+              The map at the top of this page uses
+              <a href="https://github.com/geo-smart/deep-snow">deep-snow</a>
+              to predict snow depth across the North Cascades. It is generated daily
+              from remote sensing data.
+            </p>
+          </article>
+      
+          <article class="entry">
+            <span class="tag">04 / Rock glaciers</span>
+            <h3>Rock glacier motion and mountain hydrology</h3>
+            <p>
+              I use airborne and satellite InSAR to investigate rock glacier motion
+              across the western United States. I developed a kinematic inventory of
+              rock glaciers in Utah to characterize their movement and examine where
+              they form and persist. I’m particularly interested in using surface
+              motion to infer their internal properties and thickness. My ongoing
+              work explores how rock glaciers evolve over time and their roles in
+              shaping alpine landscapes and storing and releasing water.
+            </p>
+          </article>
+      
           <div class="entry">
             <span class="tag">Open research software</span>
-            <p><a href="https://github.com/geo-smart/deep-snow">deep-snow</a> · <a href="https://github.com/relativeorbit/fufiters">fufiters</a> · <a href="https://github.com/gbrencher/indennt">indennt</a> · <a href="https://github.com/SnowEx/spicy-snow">spicy-snow</a> · <a href="https://github.com/friedrichknuth/finn">finn</a></p>
+            <p>
+              <a href="https://github.com/geo-smart/deep-snow">deep-snow</a> ·
+              <a href="https://github.com/relativeorbit/fufiters">fufiters</a> ·
+              <a href="https://github.com/gbrencher/indennt">indennt</a> ·
+              <a href="https://github.com/SnowEx/spicy-snow">spicy-snow</a> ·
+              <a href="https://github.com/friedrichknuth/finn">finn</a>
+            </p>
           </div>
         </div>
       </section>
