@@ -4,6 +4,8 @@ A buildless website prepared for GitHub Pages. The published files are in `dist/
 
 ## Editing
 
+See [the editing guide](EDITING.md) for finding sections, changing paragraphs, and publishing edits.
+
 - `dist/index.html`: homepage, research, publications, teaching, portfolios, and press.
 - `dist/style.css`: responsive sidebar layout and gallery styling.
 - `dist/maps/`: map viewing pages.
