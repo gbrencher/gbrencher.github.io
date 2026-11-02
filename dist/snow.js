@@ -30,12 +30,26 @@
     const scale = el('span','snow-scale',`${(d.scale_metres || 20000)/1000} km`); scale.style.width = `${d.scale_fraction*100}%`;
     frame.append(link,scale,el('span','snow-north','N ↑'));
     const legend = el('div','snow-legend');
-    legend.setAttribute('aria-label','Snow depth in metres: 0 to 5 or more; grey means no data');
+    legend.setAttribute('aria-label',`Snow depth in metres: 0 to ${d.vmax || 5}; violet means more than ${d.vmax || 5} metres; ${d.nodata_display === 'bare hillshade' ? 'missing data shows bare hillshade' : 'grey means no data'}`);
     const ramp = el('div','snow-ramp');
     const gradient = el('div','snow-gradient'); gradient.style.background = `linear-gradient(to right, ${d.legend_colors.join(',')})`;
     const ticks = el('div','snow-ticks');
-    for (const t of ['0','1','2','3','4','5+ m']) ticks.append(el('span','',t));
-    ramp.append(gradient,ticks); legend.append(el('span','','deep-snow predicted snow depth'),ramp);
+    let over;
+    if (d.legend_ticks) {
+      ticks.classList.add('snow-power-ticks');
+      for (const t of d.legend_ticks) {
+        const tick = el('span','',String(t.value));
+        tick.style.left = `${t.position * 100}%`; ticks.append(tick);
+      }
+      over = el('span','snow-over',`> ${d.vmax} m`);
+      over.style.setProperty('--snow-over',d.over_color);
+      gradient.classList.add('snow-extended');
+      gradient.style.setProperty('--snow-over',d.over_color);
+    } else {
+      for (const t of ['0','1','2','3','4','5+ m']) ticks.append(el('span','',t));
+    }
+    ramp.append(gradient,ticks); if (over) ramp.append(over);
+    legend.append(el('span','','deep-snow predicted snow depth'),ramp);
     const actions = el('div','snow-actions');
     actions.append(methods);
     if (historical) {

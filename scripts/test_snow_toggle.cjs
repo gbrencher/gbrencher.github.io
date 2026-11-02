@@ -1,6 +1,6 @@
 const fs = require('fs'), vm = require('vm'), assert = require('assert');
 class Element {
- constructor(tag){this.tag=tag;this.children=[];this.style={};this.classList={add(){}};this.handlers={};}
+ constructor(tag){this.tag=tag;this.children=[];this.style={setProperty(k,v){this[k]=v}};this.classList={add(){}};this.handlers={};}
  append(...nodes){this.children.push(...nodes)}
  replaceChildren(...nodes){this.children=nodes}
  setAttribute(k,v){this[k]=v}
@@ -15,6 +15,9 @@ async function check(available){
  const sandbox={console,Image:class extends Element{constructor(){super('img')}async decode(){}},document:{createElement:t=>new Element(t),querySelector:()=>figure},fetch:async url=>({ok:!url.includes('april')||available,json:async()=>({...data,target_date:url.includes('april')?'2026-04-01':data.target_date})})};
  await vm.runInNewContext(fs.readFileSync('dist/snow.js','utf8'),sandbox);
  assert(walk(figure).some(n=>n.tag==='time'&&n.dateTime===data.target_date));
+ assert.equal(figure.querySelector('.snow-ticks').children.length, data.legend_ticks.length);
+ assert.equal(figure.querySelector('.snow-ticks').children[2].style.left, `${data.legend_ticks[2].position*100}%`);
+ assert.equal(figure.querySelector('.snow-over').textContent, '> 6 m');
  let toggle=figure.querySelector('.snow-toggle');
  if(!available){assert(!toggle);return}
  assert.equal(toggle.textContent,'See previous April 1 snow depth');toggle.handlers.click();

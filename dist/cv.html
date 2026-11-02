@@ -4,55 +4,54 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>George (Quinn) Brencher · Curriculum vitae</title>
+  <link rel="stylesheet" href="style.css">
   <style>
-    * { box-sizing: border-box; }
-    body {
-      max-width: 948px;
-      margin: 60px auto;
-      padding: 0 24px;
-      background: #f7f5ef;
-      color: #283b36;
-      font: 16px/1.7 Arial, sans-serif;
-      overflow-wrap: anywhere;
-    }
-    h1, h2, h3 { font-family: Georgia, serif; line-height: 1.25; }
-    h1 { margin: 28px 0 16px; font-size: 46px; }
-    h2 { margin: 44px 0 20px; padding-bottom: 8px; border-bottom: 1px solid #cdd3cc; font-size: 27px; }
-    h3 { margin: 28px 0 16px; font-size: 21px; }
-    a { color: inherit; text-underline-offset: 3px; }
-    a:focus-visible { outline: 2px solid currentColor; outline-offset: 4px; }
-    p { margin: 0 0 18px; }
-    .dated-entry { display: grid; grid-template-columns: 8.5rem minmax(0, 1fr); column-gap: 24px; }
-    .date { font-variant-numeric: tabular-nums; }
+    .cv-page main { max-width: 900px; overflow-wrap: anywhere; }
+    .cv-page h1 { margin-bottom: 16px; }
+    .cv-page h2 { margin: 40px 0 20px; padding-top: 28px; border-top: 1px solid #ddd; }
+    .cv-page h3 { margin: 24px 0 16px; }
+    .cv-page .cv-meta, .cv-page .note { font-size: 12px; color: #666; }
+    .dated-entry { display: grid; grid-template-columns: 7.5rem minmax(0, 1fr); column-gap: 24px; }
+    .date { font-variant-numeric: tabular-nums; color: #666; }
     .description { min-width: 0; }
-    .education-detail { margin: -6px 0 14px calc(8.5rem + 24px); }
+    .education-detail { margin: -6px 0 14px calc(7.5rem + 24px); }
     .education-detail + .dated-entry { margin-top: 24px; }
-    .note { font-size: 14px; }
-    @media (max-width: 600px) {
-      body { margin: 28px auto; padding: 0 20px; }
-      h1 { font-size: 34px; }
-      h2 { font-size: 25px; margin-top: 36px; }
+    @media (max-width: 700px) {
       .dated-entry { grid-template-columns: minmax(0, 1fr); row-gap: 4px; }
-      .date { font-weight: 700; }
       .education-detail { margin-left: 0; }
     }
     @media print {
-      body { max-width: none; margin: 0; padding: 0; background: white; color: black; font-size: 11pt; }
-      body > a { display: none; }
-      h1 { font-size: 26pt; }
-      h2 { font-size: 17pt; }
-      h3 { font-size: 13pt; }
-      h1, h2, h3 { break-after: avoid; }
-      p { orphans: 3; widows: 3; }
+      .cv-page { background: white; color: black; font-size: 11pt; }
+      .cv-page header, .cv-page .skip { display: none; }
+      .cv-page main { max-width: none; margin: 0; }
+      .cv-page h1 { font-size: 22pt; }
+      .cv-page h2 { font-size: 15pt; }
+      .cv-page h3 { font-size: 12pt; }
+      .cv-page h1, .cv-page h2, .cv-page h3 { break-after: avoid; }
+      .cv-page p { max-width: none; orphans: 3; widows: 3; }
       .dated-entry { break-inside: avoid; }
     }
   </style>
 </head>
-<body>
-<a href="index.html">← Back to website</a>
+<body class="cv-page">
+    <a class="skip" href="#cv">Skip to content</a>
+
+    <header>
+      <a href="index.html">George (Quinn) Brencher</a>
+      <nav aria-label="Main navigation">
+        <a href="index.html#about">About</a>
+        <a href="index.html#research">Research</a>
+        <a href="index.html#papers">Papers</a>
+        <a href="index.html#teaching">Teaching</a>
+        <a href="index.html#cartography">Cartography</a>
+        <a href="index.html#photography">Photography</a>
+        <a href="index.html#press">Press</a>
+        <a href="#cv" aria-current="page">CV</a>
+      </nav>
+    </header>
 <main id="cv">
 <h1>George (Quinn) Brencher</h1>
-<p>Curriculum vitae · October 19, 2026 · <a href="assets/George-Brencher-CV.docx">Download original CV (.docx)</a></p>
+<p class="cv-meta">Curriculum vitae · October 19, 2026 · <a href="assets/George-Brencher-CV.docx">Download original CV (.docx)</a></p>
 <h2>Education</h2>
 <p class="dated-entry"><span class="date">2021–2025</span> <span class="description">Ph.D., University of Washington, Seattle, WA, Civil and Environmental Engineering.</span></p>
 <p class="education-detail">Dissertation: Improving synthetic aperture radar measurements of surface movement and snow depth in mountain environments</p>
@@ -85,7 +84,7 @@
 <p>Brencher, G., Henderson, S. T., &amp; Shean, D. E. (2026). Mapping buried ice and quantifying degradation rates for the most dangerous moraine dams in Nepal using Sentinel-1 InSAR. Manuscript in preparation.</p>
 <p>Geohazard Rapid Investigation Team (GRIT): Rasuwa. (2026). Learning from disaster: the August 2026 rock-ice avalanche and flood in Rasuwa, Nepal. Manuscript in preparation.</p>
 <h2>Research Funding and Fellowships</h2>
-<p class="dated-entry"><span class="date">2027–2031</span> <span class="description">Capturing 3D landslide kinematics with airborne SAR and complementary remote sensing measurements<br>NASA LACCE Science Team, Earth Venture Suborbital-4<br>Principal Investigator; $400,000 subaward; selected, pending funding</span></p>
+<p class="dated-entry"><span class="date">2027–2031</span> <span class="description">Capturing 3D landslide kinematics with airborne SAR and complementary remote sensing measurements<br>NASA LACCE Science Team, Earth Venture Suborbital-4<br>Proposal Lead; $400,000 subaward; selected, pending funding</span></p>
 <p class="dated-entry"><span class="date">2025</span> <span class="description">Gordon and Betty Moore Foundation Postdoctoral Fellowship, $162,500</span></p>
 <p class="dated-entry"><span class="date">2022</span> <span class="description">National Science Foundation Graduate Research Fellowship, three years of PhD funding</span></p>
 <p class="dated-entry"><span class="date">2021</span> <span class="description">Burges Endowed Presidential Fellowship, one year of PhD funding</span></p>

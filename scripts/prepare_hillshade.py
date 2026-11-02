@@ -27,7 +27,7 @@ def build(source):
     if not np.isfinite(elevation).all():
         raise ValueError('Incomplete terrain coverage')
     shade = LightSource(azdeg=315, altdeg=45).hillshade(
-        elevation, vert_exag=1, dx=transform.a, dy=-transform.e)
+        elevation, vert_exag=1.4, dx=transform.a, dy=-transform.e)
     out = Path(__file__).parent / 'data' / 'north-cascades-hillshade.tif'
     out.parent.mkdir(exist_ok=True)
     with rasterio.open(out, 'w', driver='GTiff', width=width, height=height,
@@ -35,7 +35,7 @@ def build(source):
                        compress='deflate') as dst:
         dst.write(np.round(shade * 255).astype('uint8'), 1)
         dst.update_tags(source='Copernicus DEM GLO-30 (AWS public COGs)',
-                        azimuth='315', altitude='45', vertical_exaggeration='1')
+                        azimuth='315', altitude='45', vertical_exaggeration='1.4')
     print(out)
 
 
