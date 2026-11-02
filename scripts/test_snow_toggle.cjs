@@ -17,7 +17,9 @@ async function check(available){
  assert(walk(figure).some(n=>n.tag==='time'&&n.dateTime===data.target_date));
  assert.equal(figure.querySelector('.snow-ticks').children.length, data.legend_ticks.length);
  assert.equal(figure.querySelector('.snow-ticks').children[2].style.left, `${data.legend_ticks[2].position*100}%`);
- assert.equal(figure.querySelector('.snow-over').textContent, '> 6 m');
+ assert.equal(figure.querySelector('.snow-ticks').children.at(-1).textContent, '6+');
+ assert.equal(figure.querySelector('.snow-legend-title').textContent, 'Snow depth (m)');
+ assert(!figure.querySelector('.snow-over'));
  let toggle=figure.querySelector('.snow-toggle');
  if(!available){assert(!toggle);return}
  assert.equal(toggle.textContent,'See previous April 1 snow depth');toggle.handlers.click();

@@ -34,22 +34,19 @@
     const ramp = el('div','snow-ramp');
     const gradient = el('div','snow-gradient'); gradient.style.background = `linear-gradient(to right, ${d.legend_colors.join(',')})`;
     const ticks = el('div','snow-ticks');
-    let over;
     if (d.legend_ticks) {
       ticks.classList.add('snow-power-ticks');
       for (const t of d.legend_ticks) {
-        const tick = el('span','',String(t.value));
+        const tick = el('span','',t.value === d.vmax ? `${t.value}+` : String(t.value));
         tick.style.left = `${t.position * 100}%`; ticks.append(tick);
       }
-      over = el('span','snow-over',`> ${d.vmax} m`);
-      over.style.setProperty('--snow-over',d.over_color);
       gradient.classList.add('snow-extended');
       gradient.style.setProperty('--snow-over',d.over_color);
     } else {
       for (const t of ['0','1','2','3','4','5+ m']) ticks.append(el('span','',t));
     }
-    ramp.append(gradient,ticks); if (over) ramp.append(over);
-    legend.append(el('span','','deep-snow predicted snow depth'),ramp);
+    ramp.append(gradient,ticks);
+    legend.append(el('span','snow-legend-title','Snow depth (m)'),ramp);
     const actions = el('div','snow-actions');
     actions.append(methods);
     if (historical) {
